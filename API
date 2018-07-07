@@ -16,11 +16,18 @@ https://www.khanacademy.org/computer-programming/isometric-3d-terrain-generator/
 <!-- Useful Functions -->
 <script id="usefulFunctionsScript">
 
+// Element styles
+function styleElement (el, styles) {
+    for (var i in styles) {
+        el.style[i] = styles[i];
+    }
+};
+
 // Defined/undefined control
 function exists(val) {
     return val !== undefined && val !== null;
 }
-function Defualt(val, defVal) {
+function Default(val, defVal) {
     if (!exists(val)) { val = defVal; }
     return val;
 };
@@ -34,11 +41,26 @@ var toolbarID = 0;
 function Toolbar (parent, config) {
     parent = parent || document.body;
     config = config || {};
+    config.style = Object.assign({
+        background : "rgb(82, 82, 82)",
+        color : "white",
+        width : "100px",
+        padding : "10px",
+        borderRadius : "5px",
+        textAlign : "center",
+        fontFamily : "monospace",
+    }, config.style);
+    config.childrenStyle = Object.assign({
+        width : "100%",
+        marginTop : "0",
+        marginBottom : "5px",
+    }, config.childrenStyle);
     
     this.parent = parent;
     this.config = config;
     
     this.constructToolbarElement();
+    this.constructToolbarStyles();
 };
 Toolbar.prototype = {
     /* Constructor */
@@ -52,28 +74,46 @@ Toolbar.prototype = {
         
         // Give the toolbar other classes and an id
         Default(this.element.id, this.config.id); // id
+        this.config.classList = this.config.classList || [];
         for (var i = 0; i < this.config.classList.length; i ++) {
             this.element.classList.add(this.config.classList[i]);
         } // classes
-        
-        this.constructToolbarStyles();
         
         // Add the toolbar to the parent element
         this.parent.appendChild(this.element);
     },
     constructToolbarStyles : function () {
-        console.log(this.element);
-        Object.assign(this.element.style, {
-            background : "red",
-            width : "100px",
-            height : "100px",
-        });
+        styleElement(this.element, this.config.style);
+    },
+    
+    /* Add Elements */
+    addElement : function (elType, innerHTML, config) {
+        config = config || {};
+        var el;
+        if (typeof elType === "string") {
+            el = document.createElement(elType);
+            el.innerHTML = innerHTML;
+            
+            styleElement(el, this.config.childrenStyle);
+            if (exists(config.style)) {
+                styleElement(el, config.style);
+            }
+            if (exists(config.classList)) {
+                for (var i = 0; i < config.classList.length; i ++) {
+                    el.classList.add(config.classList);
+                }
+            }
+            if (exists(config.id)) { el.id = config.id; }
+        }
+        else { el = elType; }
+        this.element.appendChild(el);
     },
 };
 
-var toolbar = new Toolbar ();
+var tlbr = new Toolbar ();
+tlbr.addElement("h2", "Toolbar");
+tlbr.addElement("button", "Hello");
 
 </script>
 
 </html>
-
