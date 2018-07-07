@@ -1,1 +1,79 @@
+<!DOCTYPE html>
+<!-- 
+https://www.khanacademy.org/computer-programming/peppermint-falls-chalet-gingerbread-house-contest-entry/5061077834006528/5691726094139392.png
+https://www.khanacademy.org/computer-programming/isometric-3d-terrain-generator/4809439308152832/5643440998055936.png
+
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>API for "Landscape Studios"</title>
+    </head>
+    <body>
+    
+    </body>
+
+<!-- Useful Functions -->
+<script id="usefulFunctionsScript">
+
+// Defined/undefined control
+function exists(val) {
+    return val !== undefined && val !== null;
+}
+function Defualt(val, defVal) {
+    if (!exists(val)) { val = defVal; }
+    return val;
+};
+
+</script>
+
+<!-- Toolbar -->
+<script id="toolbarScript">
+
+var toolbarID = 0;
+function Toolbar (parent, config) {
+    parent = parent || document.body;
+    config = config || {};
+    
+    this.parent = parent;
+    this.config = config;
+    
+    this.constructToolbarElement();
+};
+Toolbar.prototype = {
+    /* Constructor */
+    constructToolbarElement : function () {
+        // Create the toolbar
+        this.element = document.createElement("div");
+        
+        // Give the toolbar a unique ID class
+        this.element.classList.add(toolbarID);
+        toolbarID ++;
+        
+        // Give the toolbar other classes and an id
+        Default(this.element.id, this.config.id); // id
+        for (var i = 0; i < this.config.classList.length; i ++) {
+            this.element.classList.add(this.config.classList[i]);
+        } // classes
+        
+        this.constructToolbarStyles();
+        
+        // Add the toolbar to the parent element
+        this.parent.appendChild(this.element);
+    },
+    constructToolbarStyles : function () {
+        console.log(this.element);
+        Object.assign(this.element.style, {
+            background : "red",
+            width : "100px",
+            height : "100px",
+        });
+    },
+};
+
+var toolbar = new Toolbar ();
+
+</script>
+
+</html>
 
