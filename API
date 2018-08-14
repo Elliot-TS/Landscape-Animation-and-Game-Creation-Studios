@@ -43,7 +43,7 @@ https://www.khanacademy.org/computer-programming/isometric-3d-terrain-generator/
                 border-bottom : 2px groove grey;
             }
             
-            .LandscapeAPIToolbar button {
+            .LandscapeAPIToolbar button, .button {
                 background : linear-gradient(355deg, rgb(255, 60, 0) 19%, rgb(255, 113, 61) 64%);
                 background : -moz-linear-gradient(355deg, rgb(255, 60, 0) 19%, rgb(255, 113, 61) 64%);
                 background : -webkit-linear-gradient(276deg, rgb(255, 60, 0) 19%, rgb(255, 113, 61) 64%);
@@ -56,13 +56,13 @@ https://www.khanacademy.org/computer-programming/isometric-3d-terrain-generator/
                 padding : 4px;
                 font-size : 12px;
             }
-            .LandscapeAPIToolbar button:hover {
+            .LandscapeAPIToolbar button:hover, .button:hover {
                 background : rgb(255, 116, 61);
             }
-            .LandscapeAPIToolbar button:active {
+            .LandscapeAPIToolbar button:active, .button:active {
                 background : rgb(255, 60, 0);
             }
-            .LandscapeAPIToolbar button:focus {
+            .LandscapeAPIToolbar button:focus, .button:focus {
                 box-shadow : 0px 0px 0.5px 1.5px #aa80ff;
             }
             
@@ -81,6 +81,38 @@ https://www.khanacademy.org/computer-programming/isometric-3d-terrain-generator/
                 padding : 0;
                 margin-bottom : 0;
             }
+            
+            /* Tabs */
+            .tabsDiv {
+                border-radius : 10px;
+            }
+            .tabsContainer {
+                background : rgba(48, 48, 48, 0.8);
+            }
+            .tabsBar {
+                height : 25px;
+                border-radius : 10px 10px 0 0;
+                background : rgba(48, 48, 48, 0.8);
+                border-bottom : 4px double rgb(111, 194, 70);
+            }
+            .tabsBar .tab {
+                width : 80px;
+                height : 25px;
+                box-sizing : border-box;
+                float : left;
+                border-radius : 10px 10px 0 0;
+                border : 1px solid black;
+                padding-left : 10px;
+                font-size : 13px;
+                font-family : monospace;
+                overflow : hidden;
+                color : black;
+            }
+            .tabsBar .tab.active {
+                box-shadow : none;
+                color : white;
+                background : rgb(255, 116, 61);
+            }
         </style>
     </head>
     <body>
@@ -90,11 +122,31 @@ https://www.khanacademy.org/computer-programming/isometric-3d-terrain-generator/
 <!-- Useful Functions -->
 <script id="usefulFunctionsScript">
 
-// Element styles
+// HTML
 function styleElement (el, styles) {
     for (var i in styles) {
         el.style[i] = styles[i];
     }
+};
+function createEl (type, classes, id) {
+    var el = document.createElement(type);
+    if (typeof classes === "string") {
+        el.classList.add(classes);
+    }
+    else {
+        for (var i = 0; i < classes.length; i ++) {
+            el.classList.add(classes[i]);
+        }
+    }
+    if (id !== undefined) {
+        el.id = id;
+    }
+    
+    return el;
+};
+function createDiv (classes, id) {
+    var el = createEl("div", classes, id);
+    return el;
 };
 
 // Defined/undefined control
@@ -182,9 +234,6 @@ Toolbar.prototype = {
         }
         return btn;
     },
-    addLabel : function (text) {
-        return this.addElement("h2", text);
-    },
     addToolbar : function (name, config) {
         config = Object.assign(this.config, config);
         
@@ -200,17 +249,110 @@ Toolbar.prototype = {
     },
 };
 
-var tlbr = new Toolbar ();
-var tb2 = tlbr.addToolbar ("Transforms");
-tb2.addButton ("Translate");
-tb2.addButton ("Rotate");
-tb2.addButton ("Scale");
+var toolbr = new Toolbar ();
+var button = toolbr.addElement("button", "Click Me!", {
+    style : { backgroundColor : "red" },
+    classList : [ "myButtons", "clicker", "LandscapeButton", "exclamatory_sentence" ],
+    id : "A_particular_button"
+});
+var t2 = toolbr.addToolbar ("Subtoolbar");
+t2.addButton ("Hello");
+var t4 = toolbr.addToolbar ("A Closed Toolbar");
+t4.addButton ("A Button");
+var t3 = toolbr.addToolbar ("Another one");
+t3.addButton ("toolbar")
+t3.addButton ("Button");
+t3.addButton ("Another!??");
 
-var tb3 = tlbr.addToolbar ("Edit");
-tb3.addButton ("Duplicate");
-tb3.addButton ("Duplicate Linked");
-tb3.addButton ("Delete");
-console.log(tb2);
+function Tabs (config) {
+    this.tabs = [];
+    this.openTab = 0;
+    
+    this.constructEls ();
+};
+Tabs.prototype = {
+    constructEls : function () {
+        this.element = createDiv(["tabsDiv"]);
+        this.tabsBar = createEl("nav", ["tabsBar"]);
+        this.tabsContainer = createDiv(["tabsContainer"]);
+        
+        this.element.appendChild(this.tabsBar);
+        this.element.appendChild(this.tabsContainer);
+        
+        document.body.appendChild(this.element);
+    },
+    
+    setTab : function (index) {
+        for (var i = 0; i < this.tabs.length; i ++) {
+            this.tabs[i].tabEl.classList.remove("active");
+            this.tabs[i].element.style.display = "none";
+        }
+        this.tabs[index].element.style.display = "block";
+        this.tabs[index].tabEl.classList.add("active");
+    },
+    
+    addTab : function (title, element) {
+        this.tabs.push({
+            title : title,
+            element : element,
+        });
+        
+        element.classList.add("tabContent");
+        
+        var tab = document.createElement("div");
+        tab.classList.add("tab");
+        tab.classList.add("button");
+        var self = this;
+        var tabNum = this.tabs.length-1;
+        this.tabs[tabNum].tabEl = tab;
+        tab.addEventListener("click", function () {
+            self.setTab(tabNum)
+        });
+        tab.innerHTML = "<div class='tabText'>"+title+"</div>";
+        
+        this.tabsBar.appendChild(tab);
+        this.tabsContainer.appendChild(element);
+        
+        this.setTab(0);
+    }
+};
+
+var tab = new Tabs();
+tab.addTab("Hello", toolbr.element);
+tab.addTab("Goodbye", document.createElement("div"));
+tab.addTab("Hello", document.createElement("div"));
+tab.addTab("Goodbye", document.createElement("div"));
+</script>
+
+<!-- Scripting -->
+<script>
+
+function HTMLCode (parent, iframe, config) {
+    this.parent = parent || document.body;
+    
+    this.iframe = iframe;
+    this.constructEls (iframe, config);
+}
+HTMLCode.prototype = {
+    constructEls : function (iframe, config) {
+        this.element = document.createElement("textarea");
+        this.element.classList.add("codeEditor");
+        
+        this.parent.appendChild (this.element);
+    },
+    
+    attachToFrame : function (iframe) {
+        this.iframe = iframe || this.iframe;
+        this.frameDoc = iframe.contentWindow.document;
+    },
+    
+    run : function () {
+        this.frameDoc.open();
+        this.frameDoc.write(this.element.value);
+        this.frameDoc.close();
+    },
+};
+
 
 </script>
 
