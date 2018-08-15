@@ -363,6 +363,8 @@ function HTMLCode (parent, iframe, config) {
     
     this.iframe = iframe;
     this.constructEls (iframe, config);
+
+    this.scripts = {};
 }
 HTMLCode.prototype = {
     constructEls : function (iframe, config) {
@@ -383,13 +385,39 @@ HTMLCode.prototype = {
         this.iframe = iframe || this.iframe;
         this.frameDoc = iframe.contentWindow.document;
     },
+    attachScript : function (script, id) {
+        this.scripts[id] = script;
+    },
     
     run : function () {
         this.frameDoc.open();
         this.frameDoc.write(this.editor.session.getValue());
+
+        for (var script in this.scripts) {
+            var scriptEl = this.frameDoc.createElement("script");
+			scriptEl.innerHTML = this.scripts[script].editor.session.getValue();
+			this.frameDoc.body.appendChild(scriptEl);
+        }
+		
         this.frameDoc.close();
     },
 };
+
+var JSCodeID = 0;
+function JSCode (parent, html, iframe, config) {
+    HTMLCode.call(this, parent, iframe, config);
+	this.editor.setValue("// JavaScript Code");
+	this.editor.session.setMode("ace/mode/javascript");
+    this.html = html;
+	this.html.attachScript(this,JSCodeID);
+	JSCodeID ++;
+}
+Object.assign(JSCode.prototype, HTMLCode.prototype, {
+    run : function () {
+		this.html.run();
+	},
+});
+
 
 </script>
 
@@ -443,15 +471,34 @@ var code = new HTMLCode (document.body, iframe, {
     style : {
         width : document.body.clientWidth - 200 + "px",
         height : "40vh",
-        position : "absolute",
-        right : "0px",
-        top : "51vh"
     }
 });
 code.attachToFrame(iframe);
 code.element.addEventListener("keyup", function () {
     code.run();
 });
+
+var js = new JSCode (document.body, code, iframe, {
+    style : {
+        width : document.body.clientWidth - 200 + "px",
+        height : "40vh",
+    }
+});
+js.element.addEventListener("keyup", function () {
+    js.run();
+});
+
+var codeTab = new Tabs({
+    style : {
+        width : document.body.clientWidth - 183 + "px",
+        height : "40vh",
+        position : "absolute",
+        right : "0px",
+        top : "50vh"
+    }
+});
+codeTab.addTab("HTML", code.element);
+codeTab.addTab("JavaScript", js.element);
 
 </script>
 
